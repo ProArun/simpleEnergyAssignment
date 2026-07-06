@@ -1,0 +1,100 @@
+# myoem_base.mk — shared config included by every MyOEM product.
+# Add packages, overlays, and properties here that apply to ALL variants.
+#
+
+# Soong namespace for every module under vendor/myoem/
+PRODUCT_SOONG_NAMESPACES += \
+    vendor/myoem/services/calculator \
+    vendor/myoem/services/bmi \
+    vendor/myoem/hal/thermalcontrol \
+    vendor/myoem/services/thermalcontrol \
+    vendor/myoem/libs/thermalcontrol \
+    vendor/myoem/apps/ThermalMonitor \
+    vendor/myoem/services/safemode \
+    vendor/myoem/libs/safemode \
+    vendor/myoem/apps/SafeModeDemo \
+    vendor/myoem/services/potvolumed \
+    vendor/myoem/services/hwcalculator \
+    vendor/myoem/apps/BMICalculatorA \
+    vendor/myoem/libs/bmicalculator \
+    vendor/myoem/apps/BMICalculatorB \
+    vendor/myoem/services/bmiapp \
+    vendor/myoem/apps/BMICalculatorC \
+    vendor/myoem/hal/pirdetector \
+    vendor/myoem/services/pirdetector \
+    vendor/myoem/libs/pirdetector \
+    vendor/myoem/apps/PirDetectorApp \
+    vendor/myoem/services/helloworld \
+    vendor/myoem/services/newhelloworld \
+    vendor/myoem/hal/hwbutton \
+    vendor/myoem/services/hwbutton \
+    vendor/myoem/libs/hwbutton \
+    vendor/myoem/apps/HwButtonDemo
+
+# ── OEM services (present on all products) ─────────────────────────────────
+PRODUCT_PACKAGES += \
+    calculatord \
+    calculatord-vintf-fragment \
+    calculator_client \
+    bmid \
+    bmid-vintf-fragment \
+    bmi_client \
+    thermalcontrold \
+    thermalcontrol_client \
+    thermalcontrol-manager \
+    thermalcontrol-vintf-fragment \
+    ThermalMonitor \
+    safemoded \
+    safemode_client \
+    safemode_library \
+    com.myoem.safemode-service \
+    SafeModeDemo \
+    potvolumed \
+    hwcalculatord \
+    hwcalculator_client \
+    BMICalculatorA \
+    bmicalculator-manager \
+    libbmicalmanager_jni \
+    BMICalculatorB \
+    bmiapp-aidl-java \
+    libbmiappsvc_jni \
+    BmiSystemService \
+    BMICalculatorC \
+    pirdetectord \
+    pirdetector-vintf-fragment \
+    pirdetector_client \
+    pirdetector-manager \
+    PirDetectorApp \
+    helloworldd \
+    newhelloworldd \
+    hwbutton-hal-default \
+    hwbutton-hal-vintf-fragment \
+    hwbuttond \
+    hwbuttond-vintf-fragment \
+    hwbutton_client \
+    hwbutton-manager \
+    HwButtonDemo
+
+
+# ── SELinux ────────────────────────────────────────────────────────────────
+# Vendor services must use BOARD_VENDOR_SEPOLICY_DIRS, not PRODUCT_PRIVATE_SEPOLICY_DIRS.
+# vendor_sepolicy.cil and vendor_file_contexts only pull from BoardVendorSepolicyDirs (.vendor tag).
+# PRODUCT_PRIVATE_SEPOLICY_DIRS feeds product_sepolicy.cil (product partition) — wrong for /vendor/bin/* services.
+BOARD_VENDOR_SEPOLICY_DIRS += \
+    vendor/myoem/services/calculator/sepolicy/private \
+    vendor/myoem/services/bmi/sepolicy/private \
+    vendor/myoem/services/thermalcontrol/sepolicy/private \
+    vendor/myoem/services/safemode/sepolicy/private \
+    vendor/myoem/services/potvolumed/sepolicy/private \
+    vendor/myoem/services/hwcalculator/sepolicy/private \
+    vendor/myoem/services/pirdetector/sepolicy/private \
+    vendor/myoem/services/helloworld/sepolicy/private \
+    vendor/myoem/services/newhelloworld/sepolicy/private \
+    vendor/myoem/hal/hwbutton/sepolicy/private \
+    vendor/myoem/services/hwbutton/sepolicy/private
+
+# ── OEM properties ────────────────────────────────────────────────────────
+# Readable at runtime via android.os.SystemProperties.get("ro.myoem.version")
+PRODUCT_VENDOR_PROPERTIES += \
+    ro.myoem.version=1.0 \
+    ro.myoem.build.type=$(TARGET_BUILD_VARIANT)

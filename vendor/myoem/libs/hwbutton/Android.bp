@@ -1,0 +1,79 @@
+// No soong_namespace here (unlike libs/thermalcontrol, libs/safemode, etc.):
+// Soong's root namespace "." can see modules in an explicitly-imported
+// non-root namespace, but the reverse is never true - a module in "." (like
+// frameworks/base/services/core, which needs hwbutton-manager-service-sources
+// and hwbuttonservice-aidl-java below) can only ever resolve names within its
+// own namespace. hal/hwbutton and services/hwbutton were already left
+// un-namespaced for the same reason; this file matches that so the whole
+// hwbutton module graph stays in "." and is visible from frameworks/base.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// ── internal system_server <-> app binder interface ─────────────────────────
+//
+// Not vendor_available: this crosses the system_server/app boundary only,
+// never leaves the system partition, so no ndk/cpp backend is needed.
+
+aidl_interface {
+    name: "hwbuttonmanager-aidl",
+    owner: "myoem",
+    srcs: [
+        "aidl/com/myoem/hwbutton/IHwButtonManager.aidl",
+        "aidl/com/myoem/hwbutton/IHwButtonListener.aidl",
+    ],
+    local_include_dir: "aidl",
+    unstable: true,
+    backend: {
+        cpp: { enabled: false },
+        // No platform_apis: the interface only uses int/void, no hidden
+        // platform types, so the generated stubs don't need private-API
+        // compilation. This also lets hwbutton-manager (sdk_version:
+        // system_current, below) depend on it - a public-SDK module can
+        // never depend on a private-API one, and services.core (the other
+        // consumer, via the filegroup above) is unrestricted platform code
+        // that can depend on a public-API module just fine. Mirrors
+        // libs/thermalcontrol/Android.bp's identical reasoning for
+        // thermalcontrolservice-aidl.
+        java: { enabled: true },
+        ndk: { enabled: false },
+        rust: { enabled: false },
+    },
+}
+
+// ── service-side source: compiled directly into services.core ──────────────
+//
+// HwButtonManagerService extends com.android.server.SystemService, which is
+// itself part of services.core's own sources — a java_library that
+// static_libs-depended on services.core would be circular. So, like
+// services.core-sources itself, this is a filegroup: services/core/Android.bp
+// (frameworks/base) adds it to services.core.unboosted's srcs directly,
+// the same mechanism AOSP uses to let services.core-sources cross a module
+// boundary. Source still lives entirely under vendor/myoem; only the
+// Android.bp wiring crosses into frameworks/base (HWBUTTON_TDD.md #6 /
+// HWBUTTON_FEATURE_SPEC.md Phase 5).
+
+filegroup {
+    name: "hwbutton-manager-service-sources",
+    srcs: ["java/com/myoem/hwbutton/HwButtonManagerService.java"],
+    path: "java",
+    visibility: ["//frameworks/base/services/core"],
+}
+
+// ── app-side manager: consumed by HwButtonDemo (and any other priv-app) ────
+
+java_library {
+    name: "hwbutton-manager",
+
+    srcs: ["java/com/myoem/hwbutton/HwButtonManager.java"],
+
+    libs: [
+        "hwbuttonmanager-aidl-java",
+    ],
+
+    // ServiceManager is @hide — the app performs the lookup itself and
+    // passes the IBinder in, so this only needs public SDK types (mirrors
+    // libs/thermalcontrol/Android.bp's ThermalControlManager convention).
+    sdk_version: "system_current",
+}

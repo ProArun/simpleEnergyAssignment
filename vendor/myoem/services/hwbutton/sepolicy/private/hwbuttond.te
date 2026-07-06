@@ -1,0 +1,28 @@
+type hwbuttond,      domain;
+type hwbuttond_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(hwbuttond)
+binder_use(hwbuttond)
+binder_service(hwbuttond)
+add_service(hwbuttond, hwbuttond_service)
+
+# Client of the HAL - binder call only, no device access.
+allow hwbuttond hwbutton_hal_service:service_manager find;
+binder_call(hwbuttond, hwbutton_hal)
+
+# Explicitly do NOT add: allow hwbuttond hwbutton_device:chr_file *;
+# hwbuttond must never touch the device node directly - the HAL owns it.
+
+# ── Phase 4 verification note ────────────────────────────────────────────────
+# Checked (source grep, no sesearch/live device available in this session):
+# system/sepolicy has no generic "allow system_server app_api_service:..."
+# rule, and system_server.te's binder_call() list only names specific vendor
+# domains explicitly (artd, gatekeeperd, netd, ...) - hwbuttond is not one of
+# them and never will be automatically. So, unlike the PRD/TDD's assumption
+# that this would likely already be covered, it is NOT covered and the grant
+# below is required. This is also why hwbuttond_service dropped the
+# app_api_service attribute in service.te: that attribute means "apps may
+# look this up," which is wrong for our design (system_server is the only
+# client, per the Phase 5 SystemServer-registration decision).
+allow system_server hwbuttond_service:service_manager find;
+binder_call(system_server, hwbuttond)

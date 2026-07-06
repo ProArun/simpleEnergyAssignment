@@ -1,0 +1,103 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// ── AIDL service interface ──────────────────────────────────────────────────
+//
+// java backend enabled (platform_apis) so HwButtonManagerService in
+// frameworks/base can call IHwButtonService.Stub.asInterface(binder) —
+// see HWBUTTON_TDD.md #4.2 and #6.
+
+aidl_interface {
+    name: "hwbuttonservice-aidl",
+    owner: "myoem",
+    vendor_available: true,
+    // unstable (not stability:"vintf" + versions_with_info): see the identical
+    // note in hal/hwbutton/Android.bp - a versioned/frozen interface needs a
+    // checked-in aidl_api/<name>/1/.hash snapshot this environment can't
+    // generate. Matches services/bmi/Android.bp's bmiservice-aidl.
+    unstable: true,
+    srcs: [
+        "aidl/com/myoem/hwbutton/IHwButtonService.aidl",
+        "aidl/com/myoem/hwbutton/IHwButtonServiceCallback.aidl",
+    ],
+    local_include_dir: "aidl",
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            enabled: true,
+            platform_apis: true,
+        },
+        ndk: {
+            enabled: true,
+        },
+        rust: {
+            enabled: false,
+        },
+    },
+}
+
+// ── Native service daemon ────────────────────────────────────────────────────
+
+cc_binary {
+    name: "hwbuttond",
+    vendor: true,
+    init_rc: ["hwbuttond.rc"],
+
+    srcs: [
+        "src/HwButtonService.cpp",
+        "src/main.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+    ],
+
+    static_libs: [
+        "hwbuttonservice-aidl-ndk",
+        "hwbuttonhal-aidl-ndk",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+}
+
+// ── VINTF manifest fragment ──────────────────────────────────────────────────
+
+vintf_fragment {
+    name: "hwbuttond-vintf-fragment",
+    src: "vintf/hwbuttond.xml",
+    vendor: true,
+}
+
+// ── CLI test client ──────────────────────────────────────────────────────────
+
+cc_binary {
+    name: "hwbutton_client",
+    vendor: true,
+
+    srcs: ["test/hwbutton_client.cpp"],
+
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+    ],
+
+    static_libs: [
+        "hwbuttonservice-aidl-ndk",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+}

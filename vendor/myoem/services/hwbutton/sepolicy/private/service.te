@@ -1,0 +1,4 @@
+# Not app_api_service: apps never look this up directly (Phase 5 chose real
+# SystemServer registration, so system_server is the only binder client -
+# see HWBUTTON_TDD.md #6 and the Phase 4 verification note in hwbuttond.te).
+type hwbuttond_service, service_manager_type;

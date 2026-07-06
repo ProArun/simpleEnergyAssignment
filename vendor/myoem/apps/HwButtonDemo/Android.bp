@@ -1,0 +1,63 @@
+// No soong_namespace: libs/hwbutton is no longer its own namespace (see the
+// comment in libs/hwbutton/Android.bp), so this app is already in the same
+// root namespace "." and needs no explicit import to see hwbutton-manager.
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HwButtonDemoLib — production sources compiled as a reusable library
+//
+// Same rationale as ThermalMonitorLib (apps/ThermalMonitor/Android.bp): keeps
+// production code + generated R class in one place other modules can depend on.
+// ─────────────────────────────────────────────────────────────────────────────
+android_library {
+    name: "HwButtonDemoLib",
+
+    srcs: ["src/main/kotlin/**/*.kt"],
+
+    resource_dirs: ["src/main/res"],
+
+    manifest: "AndroidManifest.xml",
+
+    static_libs: [
+        "hwbutton-manager",
+
+        "kotlin-stdlib",
+        "kotlinx-coroutines-android",
+
+        "androidx.core_core-ktx",
+        "androidx.activity_activity-compose",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.ui_ui",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.material3_material3",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-compose",
+        "androidx.lifecycle_lifecycle-runtime-compose",
+    ],
+
+    // platform_apis:true — needed for ServiceManager.getService() (@hide)
+    platform_apis: true,
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HwButtonDemo — the production application APK
+//
+// Build : m HwButtonDemo
+// ─────────────────────────────────────────────────────────────────────────────
+android_app {
+    name: "HwButtonDemo",
+
+    platform_apis: true,
+
+    // Install to /system/priv-app/ — required for a privileged platform app.
+    privileged: true,
+
+    certificate: "platform",
+
+    manifest: "AndroidManifest.xml",
+
+    static_libs: ["HwButtonDemoLib"],
+
+    optimize: {
+        enabled: false,
+    },
+}

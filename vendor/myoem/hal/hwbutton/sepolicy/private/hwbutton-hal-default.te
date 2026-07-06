@@ -1,0 +1,13 @@
+type hwbutton_hal,      domain;
+type hwbutton_hal_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(hwbutton_hal)
+binder_use(hwbutton_hal)
+binder_service(hwbutton_hal)
+
+add_service(hwbutton_hal, hwbutton_hal_service)
+
+# Sole domain permitted to open the hwbutton misc device / sysfs nodes.
+allow hwbutton_hal hwbutton_device:chr_file rw_file_perms;
+allow hwbutton_hal sysfs_hwbutton:file r_file_perms;
+allow hwbutton_hal sysfs_hwbutton:dir  r_dir_perms;

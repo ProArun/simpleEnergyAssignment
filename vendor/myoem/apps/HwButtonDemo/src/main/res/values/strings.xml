@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HwButton Demo</string>
+    <string name="service_unavailable">hwbutton service unavailable</string>
+    <string name="value_label">Current value</string>
+    <string name="read">Read</string>
+    <string name="trigger">Trigger</string>
+    <string name="clicked_toast">Clicked!</string>
+</resources>

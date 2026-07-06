@@ -1,0 +1,3 @@
+/vendor/bin/hw/hwbutton-hal-default    u:object_r:hwbutton_hal_exec:s0
+/dev/hwbutton                          u:object_r:hwbutton_device:s0
+/sys/class/misc/hwbutton(/.*)?         u:object_r:sysfs_hwbutton:s0

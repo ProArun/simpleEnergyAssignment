@@ -1,0 +1,65 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "hwbuttonhal-aidl",
+    owner: "myoem",
+    vendor_available: true,
+    unstable: true,
+    srcs: [
+        "aidl/vendor/myoem/hardware/hwbutton/IHwButtonHal.aidl",
+        "aidl/vendor/myoem/hardware/hwbutton/IHwButtonHalCallback.aidl",
+    ],
+    local_include_dir: "aidl",
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            enabled: false,
+        },
+        ndk: {
+            enabled: true,
+        },
+        rust: {
+            enabled: false,
+        },
+    },
+}
+
+cc_binary {
+    name: "hwbutton-hal-default",
+    vendor: true,
+    relative_install_path: "hw",
+    init_rc: ["hwbutton-hal-default.rc"],
+
+    srcs: [
+        "src/HwButtonHal.cpp",
+        "src/main.cpp",
+    ],
+
+    include_dirs: ["vendor/myoem/kernel/hwbutton"],
+
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+    ],
+
+    static_libs: [
+        "hwbuttonhal-aidl-ndk",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+}
+
+vintf_fragment {
+    name: "hwbutton-hal-vintf-fragment",
+    src: "vintf/hwbutton_hal.xml",
+    vendor: true,
+}

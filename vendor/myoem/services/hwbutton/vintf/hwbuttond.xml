@@ -1,0 +1,11 @@
+<manifest version="1.0" type="device">
+    <!-- required for hwbuttond to register with servicemanager -->
+    <hal format="aidl">
+        <name>com.myoem.hwbutton</name>
+        <version>1</version>
+        <interface>
+            <name>IHwButtonService</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+</manifest>

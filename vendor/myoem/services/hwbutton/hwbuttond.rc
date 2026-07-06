@@ -1,0 +1,8 @@
+service hwbuttond /vendor/bin/hwbuttond
+    class main
+    user system
+    group system
+    disabled
+
+on property:init.svc.hwbutton-hal-default=running
+    start hwbuttond
